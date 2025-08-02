@@ -16,6 +16,14 @@ A modern, production-ready template for building full-stack React applications u
 
 ## Getting Started
 
+### Enviroments
+Set enviroments _*.env*_
+
+```bash
+VITE_API_URL=http://localhost:8082/             # Api admin
+```
+
+
 ### Installation
 
 Install the dependencies:

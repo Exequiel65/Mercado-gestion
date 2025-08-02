@@ -32,6 +32,19 @@
 $ npm install
 ```
 
+### Enviroments
+Set enviroments _*.env*_
+
+```bash
+PORT=80                  # PORT
+ENVIROMENT=DEVELOPMENT
+DB_PORT=1433             # DB PORT
+DB_USER=sa               # USER DB
+DB_PASSWORD=yourpassword # PASSWORD DB
+DB_NAME=dbName           # DATABASE NAME
+DB_HOST=localhost        # DATABASE HOST
+```
+
 ## Compile and run the project
 
 ```bash

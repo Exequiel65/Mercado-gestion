@@ -1,0 +1,96 @@
+version: "3.9"
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-preview-ubuntu-22.04
+    container_name: sqlserver
+    hostname: sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "pasword" # password para la db
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks:
+      - commerce-net
+
+  api:
+    build:
+      context: .
+      dockerfile: api-admin-mercado-gestion/Dockerfile
+    container_name: api-commerce
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production # Su entorno
+      - ConnectionStrings__DefaultConnection=db #Su cadena de conexión ej: Server=db;Database=nombreDb;User Id=sa;Password=su contraseña!;TrustServerCertificate=true
+      - StorageSettings__Service=S3
+      - StorageSettings__BuckerName=buckerName # Nombre del bucket
+      - StorageSettings__AccessKey=minioadmin # claves de minio o aws s3
+      - StorageSettings__SecretKey=minioadmin # claves de minio o aws s3
+      - StorageSettings__Endpoint=http://minio:9000 # punto de conexion con el servicio minio
+      - StorageSettings__UseSsl=false
+      - StorageSettings__UseMinio=true
+      - StorageSettings__Cdn=http://192.168.1.33:9000 # punto de lectura de los archivos, se usara de referencia para guardar la url de las imagenes
+      - domain=local # dominio
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      - db
+      - minio
+    networks:
+      - commerce-net
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z-cpuv1
+    container_name: minio_server2
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - commerce-net
+
+  api-web:
+    build:
+      context: api-web
+      dockerfile: Dockerfile
+    container_name: api-web
+    environment:
+      - ENVIROMENT=Dockerfile
+      - DB_PORT=1433
+      - DB_USER=sa
+      - DB_PASSWORD=password # password de la db
+      - DB_NAME=db # nombre de la db
+      - DB_HOST=db
+    ports:
+      - 8082:80
+    depends_on:
+      - db
+      - minio
+    networks:
+      - commerce-net
+      
+  web:
+    build:
+      context: client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8082/ # punto de conexion a la api
+    container_name: web-commerce
+    ports:
+      - 3000:3000
+    networks:
+      - commerce-net
+      
+volumes:
+  sql_data:
+  minio_data:
+
+networks:
+  commerce-net:

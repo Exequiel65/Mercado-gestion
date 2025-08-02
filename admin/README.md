@@ -16,6 +16,14 @@ A modern, production-ready template for building full-stack React applications u
 
 ## Getting Started
 
+### Enviroments
+Set enviroments _*.env*_
+
+```bash
+VITE_API_URL=http://localhost:8080/             # Api admin
+VITE_DEFAULT_DOMAIN=http://default.local:5173   # Domain
+```
+
 ### Installation
 
 Install the dependencies:
