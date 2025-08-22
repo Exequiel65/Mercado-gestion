@@ -18,7 +18,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: api-admin-mercado-gestion/Dockerfile
+      dockerfile: api-admin-mercado-gestion/WebApplication1/Dockerfile
     container_name: api-commerce
     environment:
       - ASPNETCORE_ENVIRONMENT=Production # Su entorno
