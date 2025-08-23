@@ -5,9 +5,8 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-preview-ubuntu-22.04
     container_name: sqlserver
     hostname: sqlserver
-    environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "pasword" # password para la db
+    env_file:
+      - .env
     ports:
       - "1433:1433"
     volumes:
@@ -20,18 +19,8 @@ services:
       context: ./api-admin-mercado-gestion
       dockerfile: WebApplication1/Dockerfile
     container_name: api-commerce
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Production # Su entorno
-      - ConnectionStrings__DefaultConnection=db #Su cadena de conexión ej: Server=db;Database=nombreDb;User Id=sa;Password=su contraseña!;TrustServerCertificate=true
-      - StorageSettings__Service=S3
-      - StorageSettings__BuckerName=buckerName # Nombre del bucket
-      - StorageSettings__AccessKey=minioadmin # claves de minio o aws s3
-      - StorageSettings__SecretKey=minioadmin # claves de minio o aws s3
-      - StorageSettings__Endpoint=http://minio:9000 # punto de conexion con el servicio minio
-      - StorageSettings__UseSsl=false
-      - StorageSettings__UseMinio=true
-      - StorageSettings__Cdn=http://192.168.1.33:9000 # punto de lectura de los archivos, se usara de referencia para guardar la url de las imagenes
-      - domain=local # dominio
+    env_file:
+      - .env
     ports:
       - "8080:8080"
       - "8081:8081"
@@ -47,9 +36,8 @@ services:
     ports:
       - "9000:9000"
       - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+    env_file:
+      - .env
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
@@ -61,13 +49,8 @@ services:
       context: api-web
       dockerfile: Dockerfile
     container_name: api-web
-    environment:
-      - ENVIROMENT=Dockerfile
-      - DB_PORT=1433
-      - DB_USER=sa
-      - DB_PASSWORD=password # password de la db
-      - DB_NAME=db # nombre de la db
-      - DB_HOST=db
+    env_file:
+      - .env
     ports:
       - 8082:80
     depends_on:
@@ -81,10 +64,10 @@ services:
       context: client
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://localhost:8082/ # punto de conexion a la api
+        VITE_API_URL: ${VITE_API_URL}
     container_name: web-commerce
     ports:
-      - 3000:3000
+      - 3001:3000
     networks:
       - commerce-net
       
